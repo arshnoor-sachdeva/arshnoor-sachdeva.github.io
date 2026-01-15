@@ -23,6 +23,7 @@ I design and ship electromechanical systems under tight physical, thermal, and m
 ## Selected Projects
 
 - [Water-Cooled Peltier Module for SEM](projects/sem-peltier.html)
+- [Electromechanical Retraction Mechanism](projects/retraction-mechanism.html)
 
 ---
 
