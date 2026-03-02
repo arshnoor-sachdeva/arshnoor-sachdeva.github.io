@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Precision Instruments Development — Arshnoor Singh Sachdeva</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:wght@400;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0d; --bg2: #161612; --surface: #1d1d18;
+    --border: #2e2e26; --accent: #c8a84b; --accent2: #8db4a0;
+    --text: #e8e6df; --muted: #7a7870; --faint: #3a3a32;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.6; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(200,168,75,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(200,168,75,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 4rem; background: rgba(15,15,13,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 0.15em; color: var(--accent); text-decoration: none; text-transform: uppercase; }
+  .nav-back { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .nav-back:hover { color: var(--text); }
+  .nav-back::before { content: '← '; }
+  .project-hero { position: relative; z-index: 1; padding: 10rem 4rem 4rem; max-width: 1200px; margin: 0 auto; border-bottom: 1px solid var(--border); }
+  .project-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 1rem; }
+  .project-eyebrow::before { content: ''; display: inline-block; width: 30px; height: 1px; background: var(--accent); }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 700; line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 2rem; max-width: 800px; }
+  .project-meta-row { display: flex; gap: 3rem; flex-wrap: wrap; margin-top: 2rem; }
+  .meta-item { display: flex; flex-direction: column; gap: 0.3rem; }
+  .meta-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .meta-value { font-size: 0.9rem; color: var(--text); font-weight: 500; }
+  .project-image-main { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 3rem 4rem; }
+  .image-placeholder { width: 100%; aspect-ratio: 16/9; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--faint); position: relative; overflow: hidden; }
+  .image-placeholder::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(200,168,75,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(200,168,75,0.04) 1px, transparent 1px); background-size: 30px 30px; }
+  .image-caption { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; margin-top: 0.75rem; text-align: center; }
+  .project-content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 2rem 4rem 6rem; display: grid; grid-template-columns: 2fr 1fr; gap: 6rem; align-items: start; }
+  .content-main h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 1rem; margin-top: 2.5rem; color: var(--text); }
+  .content-main h2:first-child { margin-top: 0; }
+  .content-main p { color: var(--muted); font-weight: 300; line-height: 1.9; font-size: 1rem; margin-bottom: 1rem; }
+  .content-main p span { color: var(--text); }
+  .image-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 2rem 0; }
+  .image-grid .image-placeholder { aspect-ratio: 4/3; }
+  .content-sidebar { position: sticky; top: 6rem; }
+  .sidebar-box { border: 1px solid var(--border); background: var(--surface); padding: 1.5rem; margin-bottom: 1.5rem; position: relative; }
+  .sidebar-box::before { content: ''; position: absolute; top: -1px; left: 0; width: 30px; height: 2px; background: var(--accent); }
+  .sidebar-box h3 { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+  .sidebar-box ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .sidebar-box ul li { font-size: 0.88rem; color: var(--muted); font-weight: 300; padding-left: 1rem; position: relative; }
+  .sidebar-box ul li::before { content: '—'; position: absolute; left: 0; color: var(--faint); font-size: 0.7rem; }
+  .outcome-stat { margin-bottom: 1rem; }
+  .outcome-number { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--accent); font-weight: 700; line-height: 1; }
+  .outcome-label { font-size: 0.8rem; color: var(--muted); font-weight: 300; margin-top: 0.2rem; }
+  .project-footer-nav { position: relative; z-index: 1; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; }
+  .footer-nav-item { padding: 2.5rem 4rem; text-decoration: none; color: var(--text); transition: background 0.2s; display: flex; flex-direction: column; gap: 0.4rem; }
+  .footer-nav-item:hover { background: var(--surface); }
+  .footer-nav-item:first-child { border-right: 1px solid var(--border); }
+  .footer-nav-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .footer-nav-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+  footer { border-top: 1px solid var(--border); padding: 2rem 4rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+  footer p { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--faint); letter-spacing: 0.1em; }
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .project-hero { padding: 7rem 1.5rem 3rem; }
+    .project-image-main { padding: 2rem 1.5rem; }
+    .project-content { grid-template-columns: 1fr; padding: 2rem 1.5rem 4rem; gap: 3rem; }
+    .content-sidebar { position: static; }
+    .project-footer-nav { grid-template-columns: 1fr; }
+    .footer-nav-item { padding: 2rem 1.5rem; }
+    .footer-nav-item:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    footer { padding: 1.5rem; flex-direction: column; gap: 1rem; }
+    .image-grid { grid-template-columns: 1fr; }
+  }
+
+/* ZoNexus page specific */
+.zonexus-intro {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 4rem 3rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 6rem;
+  align-items: start;
+  border-bottom: 1px solid var(--border);
+}
+
+.intro-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.intro-text p {
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.9;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.intro-text p span { color: var(--text); }
+
+.intro-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.intro-stat {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1.2rem 1.5rem;
+  position: relative;
+}
+
+.intro-stat::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 0;
+  width: 30px; height: 2px;
+  background: var(--accent);
+}
+
+.intro-stat-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+
+.intro-stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Instruments grid */
+.instruments-section {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem;
+}
+
+.instruments-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.instruments-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  max-width: 80px;
+}
+
+.instruments-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5px;
+  background: var(--border);
+}
+
+.instrument-card {
+  background: var(--bg);
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+
+.instrument-card:hover { background: var(--surface); }
+
+.instrument-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 2px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.instrument-card:hover::after { width: 100%; }
+
+/* Featured card — spans full width */
+.instrument-card.featured {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.instrument-img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--faint);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.instrument-card.featured .instrument-img {
+  aspect-ratio: 4/3;
+  margin-bottom: 0;
+}
+
+.instrument-img::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(200,168,75,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,168,75,0.05) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.instrument-img img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  position: absolute; inset: 0;
+}
+
+.instrument-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 0.5rem;
+}
+
+.instrument-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  line-height: 1.25;
+}
+
+.instrument-card.featured .instrument-title {
+  font-size: 1.6rem;
+}
+
+.instrument-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.8;
+  font-weight: 300;
+  margin-bottom: 1.2rem;
+}
+
+.instrument-highlights {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.2rem;
+}
+
+.instrument-highlights li {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 300;
+  padding-left: 1.2rem;
+  position: relative;
+  line-height: 1.6;
+}
+
+.instrument-highlights li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 0.7rem;
+}
+
+.instrument-meta {
+  display: flex;
+  gap: 0.75rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--faint);
+  letter-spacing: 0.08em;
+  flex-wrap: wrap;
+}
+
+/* Award badge on featured card */
+.award-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--accent);
+  padding: 0.4rem 0.9rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.award-badge::before {
+  content: '★';
+  font-size: 0.55rem;
+}
+
+@media (max-width: 768px) {
+  .zonexus-intro { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 1.5rem; }
+  .instruments-section { padding: 3rem 1.5rem; }
+  .instruments-grid { grid-template-columns: 1fr; }
+  .instrument-card.featured { grid-column: 1; display: block; }
+  .instrument-card.featured .instrument-img { margin-bottom: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="portfolio.html" class="nav-logo">Arshnoor.mech</a>
+  <a href="portfolio.html#projects" class="nav-back">All Projects</a>
+</nav>
+
+<!-- HERO -->
+<div class="project-hero">
+  <div class="project-eyebrow">Precision Instrumentation · ZoNexus LLC · 2023 — Present</div>
+  <h1>Precision Instruments Development</h1>
+  <div class="project-meta-row">
+    <div class="meta-item"><span class="meta-label">Company</span><span class="meta-value">ZoNexus LLC · Richmond, CA</span></div>
+    <div class="meta-item"><span class="meta-label">My Role</span><span class="meta-value">Product Development Engineer</span></div>
+    <div class="meta-item"><span class="meta-label">Timeline</span><span class="meta-value">Nov 2023 — Present</span></div>
+    <div class="meta-item"><span class="meta-label">Tools</span><span class="meta-value">Fusion 360 · GD&T · DFM / DFA · Vacuum Testing</span></div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="zonexus-intro">
+  <div class="intro-text">
+    <h2>Building Precision Tools for Electron Microscopy</h2>
+    <p>At ZoNexus LLC — a small Berkeley-based startup developing advanced instrumentation for electron microscopy — I owned <span>end-to-end mechanical development</span> of multiple product lines simultaneously, working in a fast-paced environment from concept design through CNC-machined prototypes, system integration, and production-ready builds.</p>
+    <p>My work spanned vacuum-compatible mechanical design, electromechanical integration, thermal simulation, DFM-driven manufacturing, and close collaboration with our machining team and external suppliers. I also contributed to adapting ZoNexus's product line for a new microscope manufacturer, developing custom holder configurations to meet new platform interface requirements. Below are the key instruments I contributed to during my time at ZoNexus.</p>
+  </div>
+  <div class="intro-stats">
+    <div class="intro-stat">
+      <div class="intro-stat-number">$1.1M</div>
+      <div class="intro-stat-label">DOE SBIR Phase II Award</div>
+    </div>
+    <div class="intro-stat">
+      <div class="intro-stat-number">22%</div>
+      <div class="intro-stat-label">Reduction in thermal drift</div>
+    </div>
+    <div class="intro-stat">
+      <div class="intro-stat-number">4+</div>
+      <div class="intro-stat-label">Instrument lines developed</div>
+    </div>
+    <div class="intro-stat">
+      <div class="intro-stat-number">< -60C</div>
+      <div class="intro-stat-label">Thermoelectric cooling module</div>
+    </div>
+  </div>
+</div>
+
+<!-- INSTRUMENTS -->
+<div class="instruments-section">
+  <div class="instruments-label">Instruments</div>
+  <div class="instruments-grid">
+
+    <!-- FEATURED: Peltier Cooling Module -->
+    <div class="instrument-card featured">
+      <div class="instrument-img">
+        <img src="peltierstage.jpeg" alt="Peltier Stage">
+      </div>
+      <div>
+        <div class="instrument-tag">Thermal Design · SEM Stage</div>
+        <div class="instrument-title">In-Vacuum Peltier Cooling Module for SEM</div>
+        <p class="instrument-desc">Designed and built a <span style="color:var(--text)">vacuum-compatible, water-cooled Peltier thermoelectric cooling module</span> for temperature-controlled instrumentation inside an SEM chamber — enabling in-situ experiments on battery materials, thin films, and other temperature-sensitive specimens in high vacuum.</p>
+        <ul class="instrument-highlights">
+          <li>Developed empirical bench test setup to characterize thermal behavior and drive design iteration</li>
+          <li>Identified interface thermal resistance as the primary performance bottleneck — resolved through interface material selection and mounting redesign</li>
+          <li>Engineered modular precision mounting interfaces enabling multi-platform integration with minimal drift</li>
+          <li>Integrated system into vacuum chamber and achieved stable sub −60°C temperatures</li>
+        </ul>
+        <div class="instrument-meta">
+          <span>Fusion 360</span><span>·</span>
+          <span>Sensor Integration</span><span>·</span>
+          <span>Vacuum Design</span><span>·</span>
+          <span>Water-cooling</span><span>·</span>
+          <span>Brazing</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Continuous Rotation Tomography Holder -->
+    <div class="instrument-card">
+      <div class="instrument-img">
+        <img src="tomography_holder.jpeg" alt="Tomography Holder">
+      </div>
+      <div class="award-badge">DOE SBIR Phase II — $1.1M Award</div>
+      <div class="instrument-tag">TEM Holder · Flagship Product</div>
+      <div class="instrument-title">Continuous Rotation Tomography Holder</div>
+      <p class="instrument-desc">ZoNexus's TEM holder with a built-in motor enabling continuous 360° specimen rotation — producing higher-resolution tomograms than conventional tilt-series methods with significantly faster acquisition.</p>
+      <ul class="instrument-highlights">
+        <li>Performed thermal simulations to optimize the design and materials for the internal components to minimize the drift by 22%</li>
+        <li>Worked with software team to integrate the motor controller to work with the microscope api.</li>
+        <li>Coordinated with international suppliers for timely delvery of components</li>
+      </ul>
+      <div class="instrument-meta">
+        <span>Helium leak testing</span><span>·</span>
+        <span>Thermal simulation</span><span>·</span>
+        <span>Motor integration</span><span>·</span>
+        <span>Python API integration</span>
+      </div>
+    </div>
+
+    <!-- Air-Free Transfer Modules for SEM -->
+    <div class="instrument-card">
+      <div class="instrument-img">
+        <img src="SEM_Box.jpeg" alt="SEM Box">
+      </div>
+      <div class="instrument-tag">SEM / FIB · Transfer Module</div>
+      <div class="instrument-title">Air-Free Transfer Modules for SEM/FIB</div>
+      <p class="instrument-desc">Contributed to the design and development of air-free transfer modules for SEM and FIB systems — enabling loading of air-sensitive specimens in a glove box and transport to the SEM/FIB chamber without any air exposure, supporting battery materials and thin film research.</p>
+      <ul class="instrument-highlights">
+        <li>Designed custom PCBs for the controller of the module.</li>
+        <li>Developed the gearing for the actuation mechanism of the module.</li>
+        <li>Developed the arduino program for actuating the dc motors of the module.</li>
+      </ul>
+      <div class="instrument-meta">
+        <span>PCB design</span><span>·</span>
+        <span>Arduino programming</span><span>·</span>
+        <span>Remote actuation</span><span>·</span>
+        <span>O-ring seal design</span>
+      </div>
+    </div>
+
+    <!-- Cryogenic Holder -->
+    <div class="instrument-card">
+      <div class="instrument-img">
+        <img src="cryobiasing.jpeg" alt="Cryogenic Holder">
+      </div>
+      <div class="instrument-tag">TEM Holder · Cryogenic</div>
+      <div class="instrument-title">Cryogenic TEM Holder</div>
+      <p class="instrument-desc">Designed a cryogenic TEM holder for imaging temperature-sensitive or beam-sensitive specimens at cryogenic temperatures, requiring careful thermal isolation, material and epoxy selection for cryogenic compatibility, and vacuum-tight assembly.</p>
+      <ul class="instrument-highlights">
+        <li>Sourced a better vacuum compatible epoxy that could handle cryogenic thermal shocks.</li>
+        <li>Designed and integrated flex-PCB into design for easier assembly.</li>
+        <li>Overcame the issues of thermal shorting using design changes following thermal simulations.</li>
+      </ul>
+      <div class="instrument-meta">
+        <span>Flex-PCB design</span><span>·</span>
+        <span>Cryogenic design</span><span>·</span>
+        <span>Vacuum systems</span><span>·</span>
+        <span>Epoxy selection</span>
+      </div>
+    </div>
+
+    <!-- Multi-sample Double Tilt Holder -->
+    <div class="instrument-card">
+      <div class="instrument-img">
+        <img src="3s_aft.jpeg" alt="Multi Sample Holder">
+      </div>
+      <div class="instrument-tag">TEM Holder · High Throughput</div>
+      <div class="instrument-title">Multi-Sample Double Tilt Holder</div>
+      <p class="instrument-desc">Developed a high-throughput TEM holder capable of holding multiple specimens simultaneously with double-tilt capability — significantly increasing analysis productivity by reducing sample exchange time and enabling batch characterization workflows.</p>
+      <ul class="instrument-highlights">
+        <li>Improved the sample clamp design to improve the viewing angle of the sample and easier sample loading</li>
+        <li>Developed gearing and lead-screw mechanism for retraction for finer movements compared to previous design</li>
+        <li>Developed this holder for multiple OEM manufacturer microscopes</li>
+      </ul>
+      <div class="instrument-meta">
+        <span>Gearing design</span><span>·</span>
+        <span>Linear actuation</span><span>·</span>
+        <span>Multiple OEM Manufactureres</span><span>·</span>
+        <span>DFA</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="project-footer-nav">
+  <a href="project5.html" class="footer-nav-item">
+    <span class="footer-nav-label">← Previous</span>
+    <span class="footer-nav-title">Miscellaneous Projects</span>
+  </a>
+  <a href="project2.html" class="footer-nav-item" style="text-align:right; align-items:flex-end;">
+    <span class="footer-nav-label">Next →</span>
+    <span class="footer-nav-title">Chassis Durability & NVH Analysis</span>
+  </a>
+</div>
+
+<footer>
+  <p>© 2025 Arshnoor Singh Sachdeva. All rights reserved.</p>
+  <p>Mechanical Design Engineer — San Francisco Bay Area</p>
+</footer>
+<script>
+// Auto background removal for product images on dark backgrounds
+// Works by detecting near-white pixels and making them transparent
+// Tolerance: 0-255, higher = removes more of the background
+// Edge softness: controls feathering at the edges (0 = hard, higher = softer)
+
+const BG_TOLERANCE = 30;   // how close to white counts as background
+const EDGE_SOFTNESS = 15;  // feather zone in pixels for smooth edges
+
+function removeWhiteBackground(img) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  ctx.drawImage(img, 0, 0);
+
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i+1], b = data[i+2];
+    // Check if pixel is near-white
+    if (r > 255 - BG_TOLERANCE && g > 255 - BG_TOLERANCE && b > 255 - BG_TOLERANCE) {
+      // Calculate how white it is (0=just at threshold, 1=pure white)
+      const whiteness = Math.min(r, g, b) / 255;
+      // Fade alpha smoothly based on whiteness and edge softness
+      const alpha = Math.max(0, 1 - Math.pow(whiteness, 255 / EDGE_SOFTNESS));
+      data[i+3] = Math.round(alpha * 255);
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+
+  // Replace original img with canvas result
+  const newSrc = canvas.toDataURL('image/png');
+  img.src = newSrc;
+  img.style.mixBlendMode = 'normal';
+}
+
+// Run on all instrument images marked with data-remove-bg
+document.addEventListener('DOMContentLoaded', () => {
+  const images = document.querySelectorAll('img[data-remove-bg]');
+  images.forEach(img => {
+    if (img.complete && img.naturalWidth > 0) {
+      removeWhiteBackground(img);
+    } else {
+      img.addEventListener('load', () => removeWhiteBackground(img));
+    }
+  });
+});
+</script>
+</body>
+</html>

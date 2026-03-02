@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chassis Durability & NVH Analysis — Arshnoor Singh Sachdeva</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:wght@400;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0d; --bg2: #161612; --surface: #1d1d18;
+    --border: #2e2e26; --accent: #c8a84b; --accent2: #8db4a0;
+    --text: #e8e6df; --muted: #7a7870; --faint: #3a3a32;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.6; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(200,168,75,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(200,168,75,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 4rem; background: rgba(15,15,13,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 0.15em; color: var(--accent); text-decoration: none; text-transform: uppercase; }
+  .nav-back { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .nav-back:hover { color: var(--text); }
+  .nav-back::before { content: '← '; }
+  .project-hero { position: relative; z-index: 1; padding: 10rem 4rem 4rem; max-width: 1200px; margin: 0 auto; border-bottom: 1px solid var(--border); }
+  .project-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 1rem; }
+  .project-eyebrow::before { content: ''; display: inline-block; width: 30px; height: 1px; background: var(--accent); }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 700; line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 2rem; max-width: 800px; }
+  .project-meta-row { display: flex; gap: 3rem; flex-wrap: wrap; margin-top: 2rem; }
+  .meta-item { display: flex; flex-direction: column; gap: 0.3rem; }
+  .meta-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .meta-value { font-size: 0.9rem; color: var(--text); font-weight: 500; }
+  .project-image-main { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 3rem 4rem; }
+  .image-placeholder { width: 100%; aspect-ratio: 16/9; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--faint); position: relative; overflow: hidden; }
+  .image-placeholder::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(200,168,75,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(200,168,75,0.04) 1px, transparent 1px); background-size: 30px 30px; pointer-events: none; }
+  .image-placeholder img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .image-caption { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; margin-top: 0.75rem; text-align: center; }
+  .project-content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 2rem 4rem 6rem; display: grid; grid-template-columns: 2fr 1fr; gap: 6rem; align-items: start; }
+  .content-main h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 1rem; margin-top: 2.5rem; color: var(--text); }
+  .content-main h2:first-child { margin-top: 0; }
+  .content-main p { color: var(--muted); font-weight: 300; line-height: 1.9; font-size: 1rem; margin-bottom: 1rem; }
+  .content-main p span { color: var(--text); }
+  .image-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 2rem 0; }
+  .image-grid .image-placeholder { aspect-ratio: 4/3; }
+  .image-placeholder img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .content-sidebar { position: sticky; top: 6rem; }
+  .sidebar-box { border: 1px solid var(--border); background: var(--surface); padding: 1.5rem; margin-bottom: 1.5rem; position: relative; }
+  .sidebar-box::before { content: ''; position: absolute; top: -1px; left: 0; width: 30px; height: 2px; background: var(--accent); }
+  .sidebar-box h3 { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+  .sidebar-box ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .sidebar-box ul li { font-size: 0.88rem; color: var(--muted); font-weight: 300; padding-left: 1rem; position: relative; }
+  .sidebar-box ul li::before { content: '—'; position: absolute; left: 0; color: var(--faint); font-size: 0.7rem; }
+  .outcome-stat { margin-bottom: 1rem; }
+  .outcome-number { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--accent); font-weight: 700; line-height: 1; }
+  .outcome-label { font-size: 0.8rem; color: var(--muted); font-weight: 300; margin-top: 0.2rem; }
+  .project-footer-nav { position: relative; z-index: 1; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; }
+  .footer-nav-item { padding: 2.5rem 4rem; text-decoration: none; color: var(--text); transition: background 0.2s; display: flex; flex-direction: column; gap: 0.4rem; }
+  .footer-nav-item:hover { background: var(--surface); }
+  .footer-nav-item:first-child { border-right: 1px solid var(--border); }
+  .footer-nav-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .footer-nav-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+  footer { border-top: 1px solid var(--border); padding: 2rem 4rem; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+  footer p { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--faint); letter-spacing: 0.1em; }
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .project-hero { padding: 7rem 1.5rem 3rem; }
+    .project-image-main { padding: 2rem 1.5rem; }
+    .project-content { grid-template-columns: 1fr; padding: 2rem 1.5rem 4rem; gap: 3rem; }
+    .content-sidebar { position: static; }
+    .project-footer-nav { grid-template-columns: 1fr; }
+    .footer-nav-item { padding: 2rem 1.5rem; }
+    .footer-nav-item:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    footer { padding: 1.5rem; flex-direction: column; gap: 1rem; }
+    .image-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a href="portfolio.html" class="nav-logo">Arshnoor.mech</a>
+  <a href="portfolio.html#projects" class="nav-back">All Projects</a>
+</nav>
+
+<div class="project-hero">
+  <div class="project-eyebrow">Structural Analysis · Tesla · Summer 2022</div>
+  <h1>Chassis Durability & NVH Analysis</h1>
+  <div class="project-meta-row">
+    <div class="meta-item"><span class="meta-label">Company</span><span class="meta-value">Tesla · Fremont, CA</span></div>
+    <div class="meta-item"><span class="meta-label">My Role</span><span class="meta-value">Analysis Engineer Intern</span></div>
+    <div class="meta-item"><span class="meta-label">Timeline</span><span class="meta-value">May 2022 — Aug 2022</span></div>
+    <div class="meta-item"><span class="meta-label">Tools</span><span class="meta-value">ANSA · ABAQUS · LS-Dyna · nCode Designlife</span></div>
+  </div>
+</div>
+
+<div class="project-image-main">
+  <div class="image-placeholder">
+    <img src="Brake_main.png" alt="Brake Pedal FEA Model">
+  </div>
+  <p class="image-caption">ANSA pre-processor model for the brake pedal assembly</p>
+</div>
+
+<div class="project-content">
+  <div class="content-main">
+
+    <h2>Overview</h2>
+    <p>During my internship at Tesla's vehicle engineering group in Fremont, I worked within the Analysis Engineering team developing and running FEM models for chassis subsystems — evaluating <span>durability, fatigue life, NVH performance, and structural integrity</span> to support design decisions under program timing constraints.</p>
+
+    <h2>The Problem</h2>
+    <p>Chassis components must meet stringent durability and NVH targets across a wide range of real-world load cases. Identifying structural weaknesses and vibrational failure modes early in the design cycle is critical to avoiding costly late-stage redesigns. My work focused primarily on the durability team, running analyses on components ranging from brake pedals to motor mounts and door assemblies.</p>
+
+    <h2>My Approach</h2>
+    <p>For each subsystem, I owned the full FEA workflow — meshing parts in ANSA, assigning material properties, defining contacts and boundary conditions, and running simulations in ABAQUS using implicit static and modal solvers. For fatigue life work, I generated <span>stress transfer functions in ABAQUS</span> and used nCode Designlife for random vibration fatigue analysis under PSD loading. Results were analyzed, design changes proposed, and simulations iterated until targets were met.</p>
+
+    <div class="image-grid">
+      <div>
+        <div class="image-placeholder">
+          <img src="Brake_displacement.png" alt="Brake pedal displacement">
+        </div>
+        <p class="image-caption" style="text-align:left; margin-top:0.5rem;">Brake pedal displacement under sudden braking load</p>
+      </div>
+      <div>
+        <div class="image-placeholder">
+          <img src="Brake_stress.png" alt="Brake pedal Von Mises stress">
+        </div>
+        <p class="image-caption" style="text-align:left; margin-top:0.5rem;">Von Mises stress distribution on brake pedal assembly</p>
+      </div>
+    </div>
+
+    <h2>Outcome</h2>
+    <p>The brake pedal analysis evaluated deflections and stresses under sudden braking at both vehicle and brake assembly level. Results confirmed no plastic strain under peak loads, verifying structural integrity. A significant portion of total deflection was traced back to the surrounding dash panel — leading to targeted reinforcements that achieved a <span>30% stiffness improvement</span>, resulting in lower displacement and more robust pedal feel.</p>
+
+    <h2>Other Subsystems</h2>
+    <p>Beyond the brake pedal, I contributed to analyses across a broad range of vehicle subsystems including motor mount strength load cases, steering gearbox modal analysis, fatigue life analysis of multiple brackets, fender stepping, center screen abuse, door abuse, and frunk load cases.</p>
+
+  </div>
+
+  <div class="content-sidebar">
+    <div class="sidebar-box">
+      <h3>Key Outcomes</h3>
+      <div class="outcome-stat">
+        <div class="outcome-number">30%</div>
+        <div class="outcome-label">Stiffness improvement on brake pedal assembly</div>
+      </div>
+      <div class="outcome-stat">
+        <div class="outcome-number">7+</div>
+        <div class="outcome-label">Subsystems analyzed</div>
+      </div>
+      <div class="outcome-stat">
+        <div class="outcome-number">3</div>
+        <div class="outcome-label">Solvers used (ABAQUS, LS-Dyna, nCode)</div>
+      </div>
+    </div>
+    <div class="sidebar-box">
+      <h3>Tools & Methods</h3>
+      <ul>
+        <li>ANSA (pre-processing)</li>
+        <li>ABAQUS (implicit static & modal)</li>
+        <li>LS-Dyna (crash / explicit)</li>
+        <li>nCode Designlife (fatigue / PSD)</li>
+        <li>Linear & Non-linear FEA</li>
+        <li>Modal Analysis</li>
+        <li>Fatigue Life Analysis (PSD)</li>
+      </ul>
+    </div>
+    <div class="sidebar-box">
+      <h3>My Contributions</h3>
+      <ul>
+        <li>Full FEA model setup & meshing</li>
+        <li>Static, modal & PSD load cases</li>
+        <li>Fatigue life analysis</li>
+        <li>Design iteration & stiffness improvement</li>
+        <li>Brake pedal, motor mounts, steering gearbox, door & frunk assemblies</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="project-footer-nav">
+  <a href="project1.html" class="footer-nav-item">
+    <span class="footer-nav-label">← Previous</span>
+    <span class="footer-nav-title">Precision Instruments Development</span>
+  </a>
+  <a href="project3.html" class="footer-nav-item" style="text-align:right; align-items:flex-end;">
+    <span class="footer-nav-label">Next →</span>
+    <span class="footer-nav-title">In-Vacuum Peltier Cooling Module</span>
+  </a>
+</div>
+
+<footer>
+  <p>© 2025 Arshnoor Singh Sachdeva. All rights reserved.</p>
+  <p>Mechanical Design Engineer — San Francisco Bay Area</p>
+</footer>
+</body>
+</html>
